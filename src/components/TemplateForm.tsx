@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState } from 'react';
 import {
   TextField,
   Button,
@@ -31,18 +31,7 @@ export const TemplateForm: React.FC = () => {
     setVariables(variables.filter((_, i) => i !== index));
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index?: number) => {
-    const { name, value } = e.target;
-    if (name === 'destinatario') setDestinatario(value);
-    if (name === 'template') setTemplate(value);
-    if (typeof index === 'number') {
-      const newVariables = [...variables];
-      newVariables[index] = value;
-      setVariables(newVariables);
-    }
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const resultado = await whatsappService.enviarTemplate({
@@ -66,22 +55,20 @@ export const TemplateForm: React.FC = () => {
       
       <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
         <TextField
-          name="destinatario"
           fullWidth
           label="Número de Teléfono"
           value={destinatario}
-          onChange={handleChange}
+          onChange={(e) => setDestinatario(e.target.value)}
           margin="normal"
           required
           placeholder="+5491122334455"
         />
         
         <TextField
-          name="template"
           fullWidth
           label="Template"
           value={template}
-          onChange={handleChange}
+          onChange={(e) => setTemplate(e.target.value)}
           margin="normal"
           required
           multiline
@@ -95,7 +82,11 @@ export const TemplateForm: React.FC = () => {
               fullWidth
               label={`Variable ${index}`}
               value={variable}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, index)}
+              onChange={(e) => {
+                const newVariables = [...variables];
+                newVariables[index] = e.target.value;
+                setVariables(newVariables);
+              }}
               required
             />
             {index > 0 && (
